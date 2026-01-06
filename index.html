@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Confessions</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="confession-box">
+            <h1>🔒 Anonymous Confessions</h1>
+            <p class="subtitle">Share your thoughts anonymously</p>
+            
+            <form id="confessionForm">
+                <textarea 
+                    id="confessionText" 
+                    placeholder="Type your confession here..." 
+                    required
+                    maxlength="500"
+                ></textarea>
+                <p class="char-count"><span id="charCount">0</span>/500</p>
+                
+                <button type="submit" id="submitBtn">
+                    Submit Confession
+                </button>
+            </form>
+            
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Your JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
