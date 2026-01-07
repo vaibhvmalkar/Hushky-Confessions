@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-info h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .page-info p {
+            color: #666;
+        }
+
+        .share-link {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .share-link input {
+            flex: 1;
+            border: none;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        
+        #confessionsList {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .confession-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        
+        .confession-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .confession-card.reported {
+            border-left: 5px solid #e74c3c;
+            background: #ffe6e6;
+        }
+        
+        .confession-text {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .confession-meta {
+            font-size: 0.9em;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .share-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .report-btn {
+            background: #e74c3c;
+            color: white;
+            flex: 1;
+        }
+        
+        .report-btn:hover {
+            background: #c0392b;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: white;
+        }
+        
+        .reported-badge {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="page-info">
+                <h1 id="pageTitle">📋 My Confessions</h1>
+                <p id="adminEmail">Loading...</p>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
+        </div>
+        
+        <div class="share-link">
+            <input type="text" id="shareableLink" readonly>
+            <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="totalCount">0</div>
+            <div class="stat-label">Total Confessions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="reportedCount">0</div>
+            <div class="stat-label">Reported</div>
+        </div>
+    </div>
+    
+    <div id="confessionsList">
+        <div class="loading">Loading confessions...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let currentUsername = '';
+        
+        // Get page parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageId = urlParams.get('page');
+
+        // Auth state check
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'admin-auth.html';
+                return;
+            }
+
+            // Verify user owns this page
+            const adminSnapshot = await database.ref('admins/' + user.uid).once('value');
+            const adminData = adminSnapshot.val();
+
+            if (!adminData || adminData.username !== pageId) {
+                alert('Access denied to this page');
+                window.location.href = 'admin-auth.html';
+                return;
+            }
+
+            currentUsername = adminData.username;
+            document.getElementById('adminEmail').textContent = user.email;
+            document.getElementById('pageTitle').textContent = `📋 ${currentUsername}'s Confessions`;
+            
+            // Set shareable link
+            const baseUrl = window.location.origin;
+            document.getElementById('shareableLink').value = `${baseUrl}/?page=${currentUsername}`;
+
+            // Load confessions for this page
+            loadConfessions(currentUsername);
+        });
+
+        // Load confessions
+        function loadConfessions(username) {
+            const confessionsList = document.getElementById('confessionsList');
+            
+            database.ref('confessions/' + username).orderByChild('timestamp').on('value', (snapshot) => {
+                confessionsList.innerHTML = '';
+                
+                if (!snapshot.exists()) {
+                    confessionsList.innerHTML = '<div class="loading">No confessions yet</div>';
+                    updateStats(0, 0);
+                    return;
+                }
+                
+                const confessions = [];
+                snapshot.forEach((child) => {
+                    confessions.push({
+                        id: child.key,
+                        ...child.val()
+                    });
+                });
+                
+                // Stats
+                const total = confessions.length;
+                const reported = confessions.filter(c => c.reported).length;
+                updateStats(total, reported);
+
+                // Display confessions (newest first)
+                confessions.reverse().forEach((confession) => {
+                    const card = createConfessionCard(confession, username);
+                    confessionsList.appendChild(card);
+                });
+            });
+        }
+
+        function updateStats(total, reported) {
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('reportedCount').textContent = reported;
+        }
+
+        function createConfessionCard(confession, username) {
+            const card = document.createElement('div');
+            card.className = 'confession-card' + (confession.reported ? ' reported' : '');
+            
+            const date = new Date(confession.timestamp);
+            const formattedDate = date.toLocaleString('en-IN', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            });
+            
+            card.innerHTML = `
+                <div class="confession-text">${escapeHtml(confession.text)}</div>
+                <div class="confession-meta">
+                    🕒 ${formattedDate} • ID: ${confession.id.substring(0, 8)}
+                    ${confession.reported ? '<span class="reported-badge">REPORTED</span>' : ''}
+                </div>
+                <div class="action-buttons">
+                    <button class="btn share-btn" onclick="shareToInstagram('${confession.id}', '${escapeHtml(confession.text).replace(/'/g, "\\'")}', '${username}')">
+                        📤 Share to Story
+                    </button>
+                    <button class="btn report-btn" onclick="reportConfession('${confession.id}', '${confession.uid}', '${username}')">
+                        🚫 Report & Ban
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        async function shareToInstagram(confessionId, text, username) {
+            // Implementation from previous code
+            alert('Share functionality - create image and use Web Share API');
+        }
+
+        async function reportConfession(confessionId, uid, username) {
+            if (!confirm('Ban this user permanently?')) return;
+            
+            try {
+                await Promise.all([
+                    database.ref(`confessions/${username}/${confessionId}`).update({ reported: true }),
+                    database.ref(`banned-users/${uid}`).set({
+                        bannedAt: firebase.database.ServerValue.TIMESTAMP,
+                        confessionId: confessionId,
+                        pageId: username
+                    })
+                ]);
+                alert('✅ User banned successfully');
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        function copyLink() {
+            const input = document.getElementById('shareableLink');
+            input.select();
+            document.execCommand('copy');
+            alert('✅ Link copied to clipboard!');
+        }
+
+        function handleLogout() {
+            auth.signOut().then(() => {
+                window.location.href = 'admin-auth.html';
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

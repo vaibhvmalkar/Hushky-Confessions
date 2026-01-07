@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <title>Admin Registration</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scrollbar-width: auto;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.6), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.3), transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: sparkle 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes sparkle {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            animation: containerSlideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        @keyframes containerSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(60px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            font-weight: 700;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 35px;
+            font-size: 1em;
+            font-weight: 300;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 35px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 4px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            color: #95a5a6;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            font-size: 0.95em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab.active {
+            color: #667eea;
+            background: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 30%, rgba(102, 126, 234, 0.1) 50%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tab:hover::before {
+            opacity: 1;
+        }
+
+        .form-container {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            font-size: 1em;
+            font-family: inherit;
+            background: white;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .input-hint {
+            font-size: 0.85em;
+            color: #95a5a6;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            padding-right: 60px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-password:hover {
+            transform: scale(1.08) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-password.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: #5a67d8;
+            animation: pulseSuccess 2s infinite;
+        }
+
+        .forgot-password-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password-link:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+
+        .otp-wrapper {
+            position: relative;
+        }
+
+        #otpInput {
+            font-size: 1.2em;
+            font-weight: 600;
+            letter-spacing: 8px;
+            text-align: center;
+            padding: 16px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        #otpInput:focus {
+            border-color: #4caf50;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+            box-shadow: 0 10px 30px rgba(108, 117, 125, 0.4) !important;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268, #495057) !important;
+            transform: translateY(-3px);
+        }
+
+        .otp-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb) !important;
+            color: #155724 !important;
+            animation: pulseSuccess 1.5s infinite;
+        }
+
+
+        @keyframes pulseSuccess {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .username-status {
+            font-size: 0.85em;
+            margin-top: 8px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .username-status.available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .username-status.taken {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .username-status.checking {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message,
+        .success-message {
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            display: none;
+            animation: messageSlide 0.4s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes messageSlide {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message.show,
+        .success-message.show {
+            display: block;
+        }
+
+        .link-preview {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 25px;
+            border: 1px dashed #dee2e6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .link-preview:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .link-preview strong {
+            color: #667eea;
+            font-size: 1em;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 35px 25px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                margin-bottom: 25px;
+            }
+        }
+
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <h1>🔐 Admin Registration</h1>
+        <p class="subtitle">Manage your confessions dashboard</p>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('signup')">Sign Up</div>
+            <div class="tab" onclick="switchTab('signin')">Sign In</div>
+        </div>
+
+        <div id="errorMsg" class="error-message"></div>
+        <div id="successMsg" class="success-message"></div>
+
+        <!-- Sign Up Form -->
+        <div id="signupForm" class="form-container active">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="signupEmail" placeholder="enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="signupPassword" placeholder="minimum 8 characters" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">
+                        <div class="egg-icon">
+                            <!-- Egg (Hidden Password) -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
+                                stroke-width="1.5" stroke-linecap="round">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                                <path d="M8 17c0-2 2-3 4-3s4 1 4 3" />
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="signupUsername" placeholder="choose a unique username" maxlength="20" required>
+                <div class="input-hint">3-20 characters, lowercase letters and numbers only</div>
+                <div id="usernameStatus" class="username-status"></div>
+            </div>
+
+            <div class="link-preview" id="linkPreview">
+                Your public link will be: <br>
+                <strong id="previewLink">https://your-site.com/?page=username</strong>
+            </div>
+
+            <button class="btn" onclick="handleSignup()" id="signupBtn">Create Account</button>
+        </div>
+
+        <!-- Sign In Form -->
+        <div id="signinForm" class="form-container">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="email" id="signinEmail" placeholder="Enter username" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="signinPassword" placeholder="Your password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('signinPassword')">
+                        <div class="egg-icon">
+                            <!-- Egg (Hidden Password) -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
+                                stroke-width="1.5" stroke-linecap="round">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                                <path d="M8 17c0-2 2-3 4-3s4 1 4 3" />
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="#" class="forgot-password-link" onclick="showForgotPassword()">Forgot Password?</a>
+            </div>
+
+            <!-- <button class="btn" onclick="handleSignin()" id="signinBtn">Sign In</button> -->
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div id="forgotPasswordForm" class="form-container">
+            <div class="form-group">
+                <label>Enter Email for OTP</label>
+                <div class="input-wrapper">
+                    <input type="email" id="forgotEmail" placeholder="enter your email" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Enter 6-digit OTP</label>
+                <div class="otp-wrapper">
+                    <input type="text" id="otpInput" placeholder="XXXXXX" maxlength="6" inputmode="numeric">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="newPassword" placeholder="New password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('signinPassword')">
+                        <div class="egg-icon">
+                            <!-- Egg (Hidden Password) -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
+                                stroke-width="1.5" stroke-linecap="round">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                                <path d="M8 17c0-2 2-3 4-3s4 1 4 3" />
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+                <div class="input-hint">Must be at least 8 characters</div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="sendOTP()">Send OTP</button>
+                <button class="btn" onclick="verifyOTP()">Reset Password</button>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="#" onclick="showSignin()">← Back to Sign In</a>
+            </div>
+        </div>
+
+
+
+        <button class="btn" onclick="handleSignin()" id="signinBtn">Sign In</button>
+    </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let usernameAvailable = false;
+        let checkTimeout;
+
+        // Initialize EmailJS (Replace with YOUR keys)
+        emailjs.init("MGbpiZ0e3wj0Y5dhs"); // From EmailJS dashboard
+
+        async function sendOTP() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            const btn = document.querySelector('#forgotPasswordForm .btn-secondary');
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner">⏳</span> Sending...';
+
+            try {
+                // Generate real 6-digit OTP
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                otpSentEmail = email;
+
+                // Store OTP in Firebase
+                const safeEmail = email.replace(/[@.]/g, '_');
+                await database.ref('temp-otps/' + safeEmail).set({
+                    otp: otp,
+                    email: email,
+                    expires: Date.now() + 5 * 60 * 1000, // 5 minutes
+                    sentAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // ✅ SEND REAL EMAIL VIA EmailJS
+                await emailjs.send(
+                    "service_j0p0o7o",        // From EmailJS dashboard
+                    "template_qpgt2n9",       // From EmailJS dashboard  
+                    {
+                        to_email: email,
+                        otp_code: otp,
+                        user_name: email.split('@')[0]
+                    }
+                );
+
+                console.log(`✅ REAL OTP ${otp} sent to ${email}`);
+                showSuccess('✅ OTP sent to your inbox! Check spam folder if not received');
+
+                btn.innerHTML = 'Resend (60s)';
+                startResendTimer(btn);
+
+            } catch (error) {
+                console.error('EmailJS Error:', error);
+                showError('Failed to send OTP. Check your email or try again.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Switch between tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+
+            if (tab === 'signup') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('signupForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('signinForm').classList.add('active');
+            }
+
+            clearMessages();
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.parentElement.querySelector('.toggle-password');
+
+            if (input.type === 'password') {
+                // Show password - Broken egg
+                input.type = 'text';
+                button.classList.add('active');
+                button.innerHTML = `
+            <div class="egg-icon">
+                <!-- Broken Egg (Visible Password) -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                    <!-- Crack lines -->
+                    <path d="M7 9l3 3m0 0l3-3m-3 3v6"/>
+                    <path d="M13 14l3 3m0 0l-3 3"/>
+                    <ellipse cx="12" cy="17" rx="2" ry="1" fill="#fff"/>
+                </svg>
+            </div>
+        `;
+            } else {
+                // Hide password - Whole egg
+                input.type = 'password';
+                button.classList.remove('active');
+                button.innerHTML = `
+            <div class="egg-icon">
+                <!-- Whole Egg (Hidden Password) -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666" stroke-width="1.5" stroke-linecap="round">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                    <path d="M8 17c0-2 2-3 4-3s4 1 4 3"/>
+                </svg>
+            </div>
+        `;
+            }
+        }
+
+
+        let otpSentEmail = '';
+        let sentOTP = '';
+
+        // Show forgot password form
+        function showForgotPassword() {
+            switchTab('forgot-password');
+            document.querySelector('.tabs .tab:last-child').textContent = 'Reset Password';
+        }
+
+        // Show signin form
+        function showSignin() {
+            switchTab('signin');
+            document.querySelector('.tabs .tab:last-child').textContent = 'Sign In';
+        }
+
+        // Send OTP via Firebase
+        async function sendOTP() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            const btn = document.querySelector('#forgotPasswordForm .btn-secondary');
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Sending OTP...';
+
+            try {
+                // Generate 6-digit OTP
+                sentOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                otpSentEmail = email;
+
+                // Store OTP temporarily in Firebase (in production, use Cloud Functions)
+                await database.ref('temp-otps/' + email.replace(/[@.]/g, '_')).set({
+                    otp: sentOTP,
+                    email: email,
+                    expires: Date.now() + 5 * 60 * 1000, // 5 minutes
+                    sentAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Simulate email sending (replace with actual email service)
+                console.log(`OTP ${sentOTP} sent to ${email}`);
+                showSuccess('✅ OTP sent to your email! Check your inbox (or spam folder)');
+
+                // In production: Use EmailJS, SendGrid, or Firebase Cloud Functions
+                // sendEmail(email, `Your OTP is: ${sentOTP}`);
+
+                btn.innerHTML = 'Resend OTP (60s)';
+                startResendTimer(btn);
+
+            } catch (error) {
+                showError('Failed to send OTP. Please try again.');
+                console.error('OTP Error:', error);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Verify OTP and reset password
+        async function verifyOTP() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            const otp = document.getElementById('otpInput').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const btn = event.target;
+
+            if (!otp || otp.length !== 6 || !newPassword || newPassword.length < 6) {
+                showError('Please enter valid 6-digit OTP and password (min 6 chars)');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Resetting...';
+
+            try {
+                const safeEmail = email.replace(/[@.]/g, '_');
+                const snapshot = await database.ref('temp-otps/' + safeEmail).once('value');
+                const otpData = snapshot.val();
+
+                if (!otpData || otpData.expires < Date.now() || otpData.otp !== otp) {
+                    showError('Invalid or expired OTP');
+                    return;
+                }
+
+                // Reset Firebase password
+                await auth.sendPasswordResetEmail(email);
+
+                // Update user password
+                const user = await auth.signInWithEmailAndPassword(email, newPassword);
+
+                // Clean up OTP
+                await database.ref('temp-otps/' + safeEmail).remove();
+
+                showSuccess('✅ Password reset successful! Redirecting to dashboard...');
+
+                setTimeout(() => {
+                    const adminSnapshot = database.ref('admins/' + user.user.uid).once('value');
+                    const adminData = adminSnapshot.val();
+                    window.location.href = `admin-dashboard.html?page=${adminData.username}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error('Reset Error:', error);
+                showError(getErrorMessage(error.code));
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Reset Password';
+            }
+        }
+
+        // Resend timer
+        function startResendTimer(btn) {
+            let timeLeft = 60;
+            const timer = setInterval(() => {
+                timeLeft--;
+                btn.innerHTML = `Resend OTP (${timeLeft}s)`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    btn.innerHTML = 'Resend OTP';
+                    btn.disabled = false;
+                } else {
+                    btn.disabled = true;
+                }
+            }, 1000);
+        }
+
+        // Update switchTab function to handle forgot-password
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach((t, index) => {
+                t.classList.toggle('active', index === (tab === 'signup' ? 0 : 1));
+            });
+
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+
+            if (tab === 'signup') {
+                document.getElementById('signupForm').classList.add('active');
+            } else if (tab === 'signin') {
+                document.getElementById('signinForm').classList.add('active');
+            } else if (tab === 'forgot-password') {
+                document.getElementById('forgotPasswordForm').classList.add('active');
+            }
+
+            clearMessages();
+            document.querySelector('h1').textContent =
+                tab === 'signup' ? 'Create Account' :
+                    tab === 'forgot-password' ? 'Reset Password' : 'Welcome Back';
+        }
+
+
+        // Username validation and availability check
+        document.getElementById('signupUsername').addEventListener('input', function (e) {
+            let username = e.target.value.toLowerCase();
+
+            // Auto-format: remove spaces and special chars
+            username = username.replace(/[^a-z0-9]/g, '');
+            e.target.value = username;
+
+            // Update preview link
+            const baseUrl = window.location.origin;
+            document.getElementById('previewLink').textContent =
+                `${baseUrl}/?page=${username || 'username'}`;
+
+            // Clear previous timeout
+            clearTimeout(checkTimeout);
+
+            const statusDiv = document.getElementById('usernameStatus');
+
+            if (username.length < 3) {
+                statusDiv.textContent = '';
+                usernameAvailable = false;
+                return;
+            }
+
+            statusDiv.textContent = '⏳ Checking availability...';
+            statusDiv.className = 'username-status checking';
+
+            // Debounce username check
+            checkTimeout = setTimeout(() => {
+                checkUsernameAvailability(username);
+            }, 500);
+        });
+
+        // Check if username is available
+        async function checkUsernameAvailability(username) {
+            const statusDiv = document.getElementById('usernameStatus');
+
+            try {
+                const snapshot = await database.ref('usernames/' + username).once('value');
+
+                if (snapshot.exists()) {
+                    statusDiv.textContent = '❌ Username already taken';
+                    statusDiv.className = 'username-status taken';
+                    usernameAvailable = false;
+                } else {
+                    statusDiv.textContent = '✅ Username available!';
+                    statusDiv.className = 'username-status available';
+                    usernameAvailable = true;
+                }
+            } catch (error) {
+                console.error('Error checking username:', error);
+                statusDiv.textContent = '⚠️ Error checking availability';
+                statusDiv.className = 'username-status';
+                usernameAvailable = false;
+            }
+        }
+
+        // Handle signup
+        async function handleSignup() {
+            clearMessages();
+
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const username = document.getElementById('signupUsername').value.toLowerCase();
+            const btn = document.getElementById('signupBtn');
+
+            // Validation
+            if (!email || !password || !username) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            if (username.length < 3 || username.length > 20) {
+                showError('Username must be 3-20 characters');
+                return;
+            }
+
+            if (!/^[a-z0-9]+$/.test(username)) {
+                showError('Username can only contain lowercase letters and numbers');
+                return;
+            }
+
+            if (!usernameAvailable) {
+                showError('Please choose an available username');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const uid = userCredential.user.uid;
+
+                // Store username mapping and user data
+                await Promise.all([
+                    database.ref('usernames/' + username).set({
+                        uid: uid,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    }),
+                    database.ref('admins/' + uid).set({
+                        email: email,
+                        username: username,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    })
+                ]);
+
+                showSuccess('Account created successfully! Redirecting...');
+
+                setTimeout(() => {
+                    window.location.href = `admin-dashboard.html?page=${username}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                showError(getErrorMessage(error.code));
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        }
+
+        // Handle signin
+        async function handleSignin() {
+            clearMessages();
+
+            const emailOrUsername = document.getElementById('signinEmail').value.trim();
+            const password = document.getElementById('signinPassword').value;
+            const btn = document.getElementById('signinBtn');
+
+            if (!emailOrUsername || !password) {
+                showError('Please enter valid email/username and password');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Signing In...';
+
+            try {
+                let email = emailOrUsername;
+
+                // Check if input is a username (no @ symbol)
+                if (!emailOrUsername.includes('@')) {
+                    // It's a username, find the associated email
+                    const usernameSnapshot = await database.ref('usernames/' + emailOrUsername).once('value');
+
+                    if (!usernameSnapshot.exists()) {
+                        throw new Error('auth/user-not-found');
+                    }
+
+                    const uid = usernameSnapshot.val().uid;
+                    const adminSnapshot = await database.ref('admins/' + uid).once('value');
+                    const userData = adminSnapshot.val();
+
+                    if (userData && userData.email) {
+                        email = userData.email;
+                    } else {
+                        throw new Error('auth/user-not-found');
+                    }
+                }
+
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const uid = userCredential.user.uid;
+
+                // Get user's username
+                const snapshot = await database.ref('admins/' + uid).once('value');
+                const userData = snapshot.val();
+
+                if (userData && userData.username) {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = `admin-dashboard.html?page=${userData.username}`;
+                    }, 100);
+                } else {
+                    throw new Error('User data not found');
+                }
+
+            } catch (error) {
+                console.error('Signin error:', error);
+                showError(getErrorMessage(error.code));
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        }
+
+        // Enhanced button click with ripple effect
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}px;
+            top: ${y}px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        `;
+
+                this.style.position = 'relative';
+                this.appendChild(ripple);
+
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+
+        // Helper functions
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+        }
+
+        function clearMessages() {
+            document.getElementById('errorMsg').classList.remove('show');
+            document.getElementById('successMsg').classList.remove('show');
+        }
+
+        function getErrorMessage(code) {
+            const messages = {
+                'auth/email-already-in-use': 'Email already registered. Please sign in.',
+                'auth/invalid-email': 'Invalid email address',
+                'auth/weak-password': 'Password should be at least 6 characters',
+                'auth/user-not-found': 'No account found with this email',
+                'auth/wrong-password': 'Incorrect password',
+                'auth/too-many-requests': 'Too many attempts. Please try again later'
+            };
+            return messages[code] || 'An error occurred. Please try again.';
+        }
+
+        // Floating particles animation
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+        position: fixed;
+        width: 6px;
+        height: 6px;
+        background: rgba(255,255,255,0.6);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+        left: ${Math.random() * 100}vw;
+        animation: floatUp 8s linear infinite;
+        animation-delay: ${Math.random() * 8}s;
+    `;
+            particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+            document.body.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 12000);
+        }
+
+        function initParticles() {
+            setInterval(createParticle, 800);
+            createParticle();
+        }
+
+        // Start particles
+        initParticles();
+
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const snapshot = await database.ref('admins/' + user.uid).once('value');
+                const userData = snapshot.val();
+                if (userData && userData.username) {
+                    window.location.href = `admin-dashboard.html?page=${userData.username}`;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
