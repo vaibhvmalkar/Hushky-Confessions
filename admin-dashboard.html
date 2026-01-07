@@ -245,15 +245,15 @@
     
     <script>
         // Firebase config
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+         apiKey: "AIzaSyDQOyPTvonheJ77Rck4Kx989sQGd1zEkV4",
+  authDomain: "hushly-nnc.firebaseapp.com",
+  databaseURL: "https://hushly-nnc-default-rtdb.firebaseio.com",
+  projectId: "hushly-nnc",
+  storageBucket: "hushly-nnc.firebasestorage.app",
+  messagingSenderId: "1001686893734",
+  appId: "1:1001686893734:web:d3037506921d2e757f2067",
+  measurementId: "G-4X0EX13KL6"
+};
         
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -351,10 +351,10 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn share-btn" onclick="shareToInstagram('${confession.id}', '${escapeHtml(confession.text).replace(/'/g, "\\'")}', '${username}')">
-                        📤 Share to Story
+                        Share
                     </button>
                     <button class="btn report-btn" onclick="reportConfession('${confession.id}', '${confession.uid}', '${username}')">
-                        🚫 Report & Ban
+                        Report
                     </button>
                 </div>
             `;
@@ -362,10 +362,81 @@
             return card;
         }
 
-        async function shareToInstagram(confessionId, text, username) {
-            // Implementation from previous code
-            alert('Share functionality - create image and use Web Share API');
+        async function shareToInstagram(confessionId, text) {
+            try {
+                // Create a shareable image card
+                const shareCard = createShareCard(text);
+                document.body.appendChild(shareCard);
+                
+                // Convert to canvas then to blob
+                const canvas = await html2canvas(shareCard, {
+                    backgroundColor: '#667eea',
+                    scale: 2
+                });
+                
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'confession.png', { type: 'image/png' });
+                    
+                    // Check if Web Share API is available
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Anonymous Confession',
+                                text: 'Check out this confession!'
+                            });
+                            console.log('Shared successfully');
+                        } catch (err) {
+                            console.log('Share cancelled or failed:', err);
+                            downloadImage(canvas, confessionId);
+                        }
+                    } else {
+                        // Fallback: Download image
+                        alert('Direct sharing not supported. Image will be downloaded. You can manually upload it to Instagram Stories.');
+                        downloadImage(canvas, confessionId);
+                    }
+                    
+                    document.body.removeChild(shareCard);
+                });
+            } catch (error) {
+                console.error('Error sharing:', error);
+                alert('Failed to create shareable image.');
+            }
         }
+        
+        // Create a styled share card
+        function createShareCard(text) {
+            const card = document.createElement('div');
+            card.style.cssText = `
+                position: fixed;
+                left: -9999px;
+                width: 1080px;
+                height: 1920px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 100px;
+                font-family: 'Segoe UI', sans-serif;
+            `;
+            
+            card.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 80px;
+                    border-radius: 40px;
+                    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+                    max-width: 880px;
+                ">
+                    <h1 style="font-size: 60px; margin-bottom: 40px; text-align: center;">🔒 Anonymous Confession</h1>
+                    <p style="font-size: 45px; line-height: 1.6; color: #333; text-align: center; margin-bottom: 60px;">${text}</p>
+                    <p style="text-align: center; color: #999; font-size: 35px;">Share yours at: your-website-url.com</p>
+                </div>
+            `;
+            return alert('Share functionality - create image and use Web Share API');
+
+        }
+            
 
         async function reportConfession(confessionId, uid, username) {
             if (!confirm('Ban this user permanently?')) return;
