@@ -678,7 +678,250 @@
         let isCheckingUsername = false;
         let checkTimeout;
 
-        // Initialize EmailJS (Replace with YOUR keys)
+        // Username validation and availability check
+       document.getElementById('signupUsername').addEventListener('input', async function(e) {
+    let username = e.target.value.toLowerCase().trim();
+    
+    // Auto-format username
+    username = username.replace(/[^a-z0-9]/g, '');
+    e.target.value = username;
+
+    // Update preview link
+    const baseUrl = window.location.origin;
+    document.getElementById('previewLink').textContent = 
+        `${baseUrl}/?page=${username || 'username'}`;
+
+    const statusDiv = document.getElementById('usernameStatus');
+    
+    // Clear previous states
+    statusDiv.textContent = '';
+    statusDiv.className = 'username-status';
+    usernameAvailable = false;
+    
+    if (username.length < 3) {
+        statusDiv.textContent = 'Minimum 3 characters required';
+        return;
+    }
+
+    if (isCheckingUsername) return;
+    
+    clearTimeout(checkTimeout);
+    checkTimeout = setTimeout(async () => {
+        await checkUsernameAvailability(username);
+    }, 600);
+});
+
+
+        // Check if username is available
+        async function checkUsernameAvailability(username) {
+    if (!username || username.length < 3) return;
+    
+    const statusDiv = document.getElementById('usernameStatus');
+    isCheckingUsername = true;
+    
+    try {
+        statusDiv.textContent = '⏳ Checking availability...';
+        statusDiv.className = 'username-status checking';
+
+        const snapshot = await database.ref('usernames/' + username).once('value');
+        
+        if (snapshot.exists()) {
+            statusDiv.innerHTML = '❌ <strong>' + username + '</strong> is already taken';
+            statusDiv.className = 'username-status taken';
+            usernameAvailable = false;
+        } else {
+            statusDiv.innerHTML = '✅ <strong>' + username + '</strong> is available!';
+            statusDiv.className = 'username-status available';
+            usernameAvailable = true;
+        }
+    } catch (error) {
+        console.error('Username check error:', error);
+        statusDiv.innerHTML = '⚠️ Error checking availability';
+        statusDiv.className = 'username-status';
+        usernameAvailable = false;
+    } finally {
+        isCheckingUsername = false;
+    }
+}
+
+
+        // Handle signup
+        async function handleSignup() {
+    clearMessages();
+    
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const username = document.getElementById('signupUsername').value.toLowerCase().trim();
+    const btn = document.getElementById('signupBtn');
+
+    if (!email || !password || !username) {
+        showError('Please fill in all fields');
+        return;
+    }
+
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+    }
+
+    if (username.length < 3 || username.length > 20) {
+        showError('Username must be 3-20 characters');
+        return;
+    }
+
+    if (!/^[a-z0-9]+$/.test(username)) {
+        showError('Username can only contain lowercase letters and numbers');
+        return;
+    }
+
+    if (!usernameAvailable || isCheckingUsername) {
+        showError('⛔ Username not available or still checking. Please wait...');
+        checkUsernameAvailability(username);
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Creating Account...';
+
+    try {
+        const usernameRef = database.ref('usernames/' + username);
+        const snapshot = await usernameRef.once('value');
+        
+        if (snapshot.exists()) {
+            throw new Error('Username taken during signup');
+        }
+
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = userCredential.user.uid;
+
+        await database.ref().update({
+            ['usernames/' + username]: {
+                uid: uid,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                email: email
+            },
+            ['admins/' + uid]: {
+                email: email,
+                username: username,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            }
+        });
+
+        showSuccess(`✅ Account "${username}" created successfully!`);
+        
+        setTimeout(() => {
+            window.location.href = `admin-dashboard.html?page=${username}`;
+        }, 1500);
+
+    } catch (error) {
+        console.error('Signup error:', error);
+        
+        if (error.message.includes('Username taken')) {
+            showError('Username was taken by another user. Please choose another.');
+            checkUsernameAvailability(username);
+        } else {
+            showError(getErrorMessage(error.code));
+        }
+        
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+    }
+}
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const uid = userCredential.user.uid;
+
+                // Store username mapping and user data
+                await Promise.all([
+                    database.ref('usernames/' + username).set({
+                        uid: uid,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    }),
+                    database.ref('admins/' + uid).set({
+                        email: email,
+                        username: username,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    })
+                ]);
+
+                showSuccess('Account created successfully! Redirecting...');
+
+                setTimeout(() => {
+                    window.location.href = `admin-dashboard.html?page=${username}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                showError(getErrorMessage(error.code));
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        }
+
+        // Handle signin
+        async function handleSignin() {
+            clearMessages();
+
+            const emailOrUsername = document.getElementById('signinEmail').value.trim();
+            const password = document.getElementById('signinPassword').value;
+            const btn = document.getElementById('signinBtn');
+
+            if (!emailOrUsername || !password) {
+                showError('Please enter valid email/username and password');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Signing In...';
+
+            try {
+                let email = emailOrUsername;
+
+                // Check if input is a username (no @ symbol)
+                if (!emailOrUsername.includes('@')) {
+                    // It's a username, find the associated email
+                    const usernameSnapshot = await database.ref('usernames/' + emailOrUsername).once('value');
+
+                    if (!usernameSnapshot.exists()) {
+                        throw new Error('auth/user-not-found');
+                    }
+
+                    const uid = usernameSnapshot.val().uid;
+                    const adminSnapshot = await database.ref('admins/' + uid).once('value');
+                    const userData = adminSnapshot.val();
+
+                    if (userData && userData.email) {
+                        email = userData.email;
+                    } else {
+                        throw new Error('auth/user-not-found');
+                    }
+                }
+
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const uid = userCredential.user.uid;
+
+                // Get user's username
+                const snapshot = await database.ref('admins/' + uid).once('value');
+                const userData = snapshot.val();
+
+                if (userData && userData.username) {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = `admin-dashboard.html?page=${userData.username}`;
+                    }, 100);
+                } else {
+                    throw new Error('User data not found');
+                }
+
+            } catch (error) {
+                console.error('Signin error:', error);
+                showError(getErrorMessage(error.code));
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        }
+// Initialize EmailJS (Replace with YOUR keys)
         emailjs.init("MGbpiZ0e3wj0Y5dhs"); // From EmailJS dashboard
 
         async function sendOTP() {
@@ -783,192 +1026,6 @@
         `;
             }
         }
-
-        // Username validation and availability check
-        document.getElementById('signupUsername').addEventListener('input', function (e) {
-            let username = e.target.value.toLowerCase();
-
-            // Auto-format: remove spaces and special chars
-            username = username.replace(/[^a-z0-9]/g, '');
-            e.target.value = username;
-
-            // Update preview link
-            const baseUrl = window.location.origin;
-            document.getElementById('previewLink').textContent =
-                `${baseUrl}/?page=${username || 'username'}`;
-
-            // Clear previous timeout
-            clearTimeout(checkTimeout);
-
-            const statusDiv = document.getElementById('usernameStatus');
-
-            if (username.length < 3) {
-                statusDiv.textContent = '';
-                usernameAvailable = false;
-                return;
-            }
-
-            statusDiv.textContent = '⏳ Checking availability...';
-            statusDiv.className = 'username-status checking';
-
-            // Debounce username check
-            checkTimeout = setTimeout(() => {
-                checkUsernameAvailability(username);
-            }, 500);
-        });
-
-        // Check if username is available
-        async function checkUsernameAvailability(username) {
-            const statusDiv = document.getElementById('usernameStatus');
-
-            try {
-                const snapshot = await database.ref('usernames/' + username).once('value');
-
-                if (snapshot.exists()) {
-                    statusDiv.textContent = '❌ Username already taken';
-                    statusDiv.className = 'username-status taken';
-                    usernameAvailable = false;
-                } else {
-                    statusDiv.textContent = '✅ Username available!';
-                    statusDiv.className = 'username-status available';
-                    usernameAvailable = true;
-                }
-            } catch (error) {
-                console.error('Error checking username:', error);
-                statusDiv.textContent = '⚠️ Error checking availability';
-                statusDiv.className = 'username-status';
-                usernameAvailable = false;
-            }
-        }
-
-        // Handle signup
-        async function handleSignup() {
-            clearMessages();
-
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const username = document.getElementById('signupUsername').value.toLowerCase();
-            const btn = document.getElementById('signupBtn');
-
-            // Validation
-            if (!email || !password || !username) {
-                showError('Please fill in all fields');
-                return;
-            }
-
-            if (username.length < 3 || username.length > 20) {
-                showError('Username must be 3-20 characters');
-                return;
-            }
-
-            if (!/^[a-z0-9]+$/.test(username)) {
-                showError('Username can only contain lowercase letters and numbers');
-                return;
-            }
-
-            if (!usernameAvailable) {
-                showError('Please choose an available username');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Creating Account...';
-
-            try {
-                // Create user account
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const uid = userCredential.user.uid;
-
-                // Store username mapping and user data
-                await Promise.all([
-                    database.ref('usernames/' + username).set({
-                        uid: uid,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    }),
-                    database.ref('admins/' + uid).set({
-                        email: email,
-                        username: username,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    })
-                ]);
-
-                showSuccess('Account created successfully! Redirecting...');
-
-                setTimeout(() => {
-                    window.location.href = `admin-dashboard.html?page=${username}`;
-                }, 1500);
-
-            } catch (error) {
-                console.error('Signup error:', error);
-                showError(getErrorMessage(error.code));
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
-            }
-        }
-
-        // Handle signin
-        async function handleSignin() {
-            clearMessages();
-
-            const emailOrUsername = document.getElementById('signinEmail').value.trim();
-            const password = document.getElementById('signinPassword').value;
-            const btn = document.getElementById('signinBtn');
-
-            if (!emailOrUsername || !password) {
-                showError('Please enter valid email/username and password');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Signing In...';
-
-            try {
-                let email = emailOrUsername;
-
-                // Check if input is a username (no @ symbol)
-                if (!emailOrUsername.includes('@')) {
-                    // It's a username, find the associated email
-                    const usernameSnapshot = await database.ref('usernames/' + emailOrUsername).once('value');
-
-                    if (!usernameSnapshot.exists()) {
-                        throw new Error('auth/user-not-found');
-                    }
-
-                    const uid = usernameSnapshot.val().uid;
-                    const adminSnapshot = await database.ref('admins/' + uid).once('value');
-                    const userData = adminSnapshot.val();
-
-                    if (userData && userData.email) {
-                        email = userData.email;
-                    } else {
-                        throw new Error('auth/user-not-found');
-                    }
-                }
-
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const uid = userCredential.user.uid;
-
-                // Get user's username
-                const snapshot = await database.ref('admins/' + uid).once('value');
-                const userData = snapshot.val();
-
-                if (userData && userData.username) {
-                    showSuccess('Login successful! Redirecting...');
-                    setTimeout(() => {
-                        window.location.href = `admin-dashboard.html?page=${userData.username}`;
-                    }, 100);
-                } else {
-                    throw new Error('User data not found');
-                }
-
-            } catch (error) {
-                console.error('Signin error:', error);
-                showError(getErrorMessage(error.code));
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
-            }
-        }
-
         // Enhanced button click with ripple effect
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
@@ -1075,3 +1132,4 @@
 </body>
 
 </html>
+
