@@ -1,3 +1,47 @@
+// Get page parameter from URL
+const urlParams = new URLSearchParams(window.location.search);
+const pageId = urlParams.get('page');
+
+// If no page specified, redirect to default or show error
+if (!pageId) {
+    document.querySelector('.confession-box').innerHTML = `
+        <h1>⚠️ Invalid Page</h1>
+        <p>Please access this page through a valid confession link.</p>
+    `;
+    throw new Error('No page ID specified');
+}
+
+// Update the confession submission path to be page-specific
+function submitConfession(confession) {
+    submitBtn.disabled = true;
+    submitBtn.querySelector('.button-text').textContent = 'Submitting...';
+    
+    const confessionData = {
+        text: confession,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        uid: auth.currentUser ? auth.currentUser.uid : 'anonymous',
+        reported: false
+    };
+    
+    // Store under specific page ID
+    database.ref(`confessions/${pageId}`).push(confessionData)
+        .then(() => {
+            triggerSendingAnimation();
+            setTimeout(() => {
+                confessionText.value = '';
+                charCount.textContent = '0';
+                submitBtn.disabled = false;
+                submitBtn.querySelector('.button-text').textContent = 'Submit Confession';
+            }, 3500);
+        })
+        .catch((error) => {
+            console.error('Error submitting confession:', error);
+            showMessage('❌ Failed to submit. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.querySelector('.button-text').textContent = 'Submit Confession';
+        });
+}
+
 // Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDQOyPTvonheJ77Rck4Kx989sQGd1zEkV4",
