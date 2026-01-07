@@ -13,8 +13,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            scrollbar-width: auto;
-            scroll-behavior: smooth;
         }
 
         body {
@@ -25,8 +23,8 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: auto;
             position: relative;
+            overflow-y: auto;
         }
 
         /* Animated background particles */
@@ -345,48 +343,30 @@
             }
         }
 
-       .username-status {
-    font-size: 0.9em;
-    margin-top: 8px;
-    font-weight: 600;
-    padding: 8px 15px;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
+        .username-status {
+            font-size: 0.85em;
+            margin-top: 8px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
 
         .username-status.available {
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    color: #155724;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-    animation: pulseSuccess 2s infinite;
-}
+            background: #d4edda;
+            color: #155724;
+        }
 
-       .username-status.taken {
-    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-    color: #721c24;
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-}
+        .username-status.taken {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
-.username-status.checking {
-    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-    color: #856404;
-    position: relative;
-}
+        .username-status.checking {
+            background: #fff3cd;
+            color: #856404;
+        }
 
-        .username-status.checking::after {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #ffc107;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    right: 12px;
-}                
         .btn {
             width: 100%;
             padding: 18px;
@@ -532,8 +512,9 @@
 </head>
 
 <body>
+
     <div class="auth-container">
-        <h1>🔐 Admin Registration</h1>
+        <h1>Admin Registration</h1>
         <p class="subtitle">Manage your confessions dashboard</p>
 
         <div class="tabs">
@@ -555,7 +536,8 @@
                 <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signupPassword" placeholder="minimum 8 characters" required>
-                    <button type="button" class="toggle-password" tabindex="-1" onclick="togglePassword('signupPassword')">
+                    <button type="button" class="toggle-password" tabindex="-1"
+                        onclick="togglePassword('signupPassword')">
                         <div class="egg-icon">
                             <!-- Egg (Hidden Password) -->
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
@@ -577,6 +559,7 @@
                 <div id="usernameStatus" class="username-status"></div>
             </div>
 
+
             <!-- <div class="link-preview" id="linkPreview">
                 Your public link will be: <br>
                 <strong id="previewLink">https://your-site.com/?page=username</strong>
@@ -596,7 +579,8 @@
                 <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signinPassword" placeholder="Your password" required>
-                    <button type="button" class="toggle-password" tabindex="-1" onclick="togglePassword('signinPassword')">
+                    <button type="button" class="toggle-password" tabindex="-1"
+                        onclick="togglePassword('signinPassword')">
                         <div class="egg-icon">
                             <!-- Egg (Hidden Password) -->
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
@@ -610,7 +594,8 @@
             </div>
 
             <div style="text-align: center; margin-bottom: 20px;">
-                <a href="#" class="forgot-password-link" onclick="showForgotPassword()">Forgot Password?</a>
+                <a href="#" class="forgot-password-link" tabindex="-1" onclick="showForgotPassword()">Forgot
+                    Password?</a>
             </div>
 
             <button class="btn" onclick="handleSignin()" id="signinBtn">Sign In</button>
@@ -636,7 +621,7 @@
                 <label>New Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="newPassword" placeholder="New password" required>
-                    <button type="button" class="toggle-password" tabindex="-1" onclick="togglePassword('signinPassword')">
+                    <button type="button" class="toggle-password" onclick="togglePassword('signinPassword')">
                         <div class="egg-icon">
                             <!-- Egg (Hidden Password) -->
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
@@ -662,7 +647,7 @@
 
 
 
-       <!-- <button class="btn" onclick="handleSignin()" id="signinBtn">Sign In</button> -->
+        <!-- <button class="btn" onclick="handleSignin()" id="signinBtn">Sign In</button> -->
     </div>
     </div>
 
@@ -676,22 +661,22 @@
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDQOyPTvonheJ77Rck4Kx989sQGd1zEkV4",
-  authDomain: "hushly-nnc.firebaseapp.com",
-  databaseURL: "https://hushly-nnc-default-rtdb.firebaseio.com",
-  projectId: "hushly-nnc",
-  storageBucket: "hushly-nnc.firebasestorage.app",
-  messagingSenderId: "1001686893734",
-  appId: "1:1001686893734:web:d3037506921d2e757f2067",
-  measurementId: "G-4X0EX13KL6"
+            authDomain: "hushly-nnc.firebaseapp.com",
+            databaseURL: "https://hushly-nnc-default-rtdb.firebaseio.com",
+            projectId: "hushly-nnc",
+            storageBucket: "hushly-nnc.firebasestorage.app",
+            messagingSenderId: "1001686893734",
+            appId: "1:1001686893734:web:d3037506921d2e757f2067",
+            measurementId: "G-4X0EX13KL6"
         };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
 
-       let usernameAvailable = false;
-let isCheckingUsername = false;
-let checkTimeout;
+        let usernameAvailable = false;
+        let isCheckingUsername = false;
+        let checkTimeout;
 
         // Initialize EmailJS (Replace with YOUR keys)
         emailjs.init("MGbpiZ0e3wj0Y5dhs"); // From EmailJS dashboard
@@ -710,7 +695,7 @@ let checkTimeout;
 
             try {
                 // Generate real 6-digit OTP
-                const otp = Math.floor(100000 + Math.random() * 900000).toString();  // Generates a 6-digit number (e.g., 100000 to 999999)
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
                 otpSentEmail = email;
 
                 // Store OTP in Firebase
@@ -718,7 +703,7 @@ let checkTimeout;
                 await database.ref('temp-otps/' + safeEmail).set({
                     otp: otp,
                     email: email,
-                    expires: Date.now() + 10 * 60 * 1000, // 10 minutes
+                    expires: Date.now() + 5 * 60 * 1000, // 5 minutes
                     sentAt: firebase.database.ServerValue.TIMESTAMP
                 });
 
@@ -799,168 +784,127 @@ let checkTimeout;
             }
         }
 
-        let usernameAvailable = false;
-let isCheckingUsername = false;
-let checkTimeout;
+        // Username validation and availability check
+        document.getElementById('signupUsername').addEventListener('input', function (e) {
+            let username = e.target.value.toLowerCase();
 
-// FIXED: Username validation and availability check
-document.getElementById('signupUsername').addEventListener('input', async function(e) {
-    let username = e.target.value.toLowerCase().trim();
-    
-    // Auto-format username
-    username = username.replace(/[^a-z0-9]/g, '');
-    e.target.value = username;
+            // Auto-format: remove spaces and special chars
+            username = username.replace(/[^a-z0-9]/g, '');
+            e.target.value = username;
 
-    // Update preview link
-    const baseUrl = window.location.origin;
-    document.getElementById('previewLink').textContent = 
-        `${baseUrl}/?page=${username || 'username'}`;
+            // Update preview link
+            const baseUrl = window.location.origin;
+            document.getElementById('previewLink').textContent =
+                `${baseUrl}/?page=${username || 'username'}`;
 
-    const statusDiv = document.getElementById('usernameStatus');
-    
-    // Clear previous states
-    statusDiv.textContent = '';
-    statusDiv.className = 'username-status';
-    usernameAvailable = false;
-    
-    // Minimum length check
-    if (username.length < 3) {
-        statusDiv.textContent = 'Minimum 3 characters required';
-        return;
-    }
+            // Clear previous timeout
+            clearTimeout(checkTimeout);
 
-    if (isCheckingUsername) return; // Prevent multiple checks
-    
-    // Debounced check
-    clearTimeout(checkTimeout);
-    checkTimeout = setTimeout(async () => {
-        await checkUsernameAvailability(username);
-    }, 600);
-});
+            const statusDiv = document.getElementById('usernameStatus');
 
-// FIXED: Robust username availability check
-async function checkUsernameAvailability(username) {
-    if (!username || username.length < 3) return;
-    
-    const statusDiv = document.getElementById('usernameStatus');
-    isCheckingUsername = true;
-    
-    try {
-        statusDiv.textContent = '⏳ Checking availability...';
-        statusDiv.className = 'username-status checking';
-
-        // ✅ CRITICAL FIX: Use Firebase Realtime Database check
-        const snapshot = await database.ref('usernames').orderByChild(username).equalTo(true).once('value');
-        // OR use direct path check:
-        // const snapshot = await database.ref('usernames/' + username).once('value');
-        
-        if (snapshot.exists()) {
-            statusDiv.innerHTML = '❌ <strong>' + username + '</strong> is already taken';
-            statusDiv.className = 'username-status taken';
-            usernameAvailable = false;
-        } else {
-            statusDiv.innerHTML = '✅ <strong>' + username + '</strong> is available!';
-            statusDiv.className = 'username-status available';
-            usernameAvailable = true;
-        }
-    } catch (error) {
-        console.error('Username check error:', error);
-        statusDiv.innerHTML = '⚠️ Error checking availability';
-        statusDiv.className = 'username-status';
-        usernameAvailable = false;
-    } finally {
-        isCheckingUsername = false;
-    }
-}
-
-// FIXED: Signup with proper validation
-async function handleSignup() {
-    clearMessages();
-    
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    const username = document.getElementById('signupUsername').value.toLowerCase().trim();
-    const btn = document.getElementById('signupBtn');
-
-    // ✅ VALIDATION CHECKS
-    if (!email || !password || !username) {
-        showError('Please fill in all fields');
-        return;
-    }
-
-    if (password.length < 6) {
-        showError('Password must be at least 6 characters');
-        return;
-    }
-
-    if (username.length < 3 || username.length > 20) {
-        showError('Username must be 3-20 characters');
-        return;
-    }
-
-    if (!/^[a-z0-9]+$/.test(username)) {
-        showError('Username can only contain lowercase letters and numbers');
-        return;
-    }
-
-    // ✅ CRITICAL FIX: Double-check availability before signup
-    if (!usernameAvailable || isCheckingUsername) {
-        showError('⛔ Username not available or still checking. Please wait...');
-        // Force re-check
-        checkUsernameAvailability(username);
-        return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Creating Account...';
-
-    try {
-        // ✅ ATOMIC OPERATION: Check + Create in transaction
-        const usernameRef = database.ref('usernames/' + username);
-        const snapshot = await usernameRef.once('value');
-        
-        if (snapshot.exists()) {
-            throw new Error('Username taken during signup');
-        }
-
-        // Create Firebase user
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = userCredential.user.uid;
-
-        // ✅ ATOMIC WRITE: Both records at once
-        await database.ref().update({
-            ['usernames/' + username]: {
-                uid: uid,
-                createdAt: firebase.database.ServerValue.TIMESTAMP,
-                email: email
-            },
-            ['admins/' + uid]: {
-                email: email,
-                username: username,
-                createdAt: firebase.database.ServerValue.TIMESTAMP
+            if (username.length < 3) {
+                statusDiv.textContent = '';
+                usernameAvailable = false;
+                return;
             }
+
+            statusDiv.textContent = '⏳ Checking availability...';
+            statusDiv.className = 'username-status checking';
+
+            // Debounce username check
+            checkTimeout = setTimeout(() => {
+                checkUsernameAvailability(username);
+            }, 500);
         });
 
-        showSuccess(`✅ Account "${username}" created successfully!`);
-        
-        setTimeout(() => {
-            window.location.href = `admin-dashboard.html?page=${username}`;
-        }, 1500);
+        // Check if username is available
+        async function checkUsernameAvailability(username) {
+            const statusDiv = document.getElementById('usernameStatus');
 
-    } catch (error) {
-        console.error('Signup error:', error);
-        
-        if (error.message.includes('Username taken')) {
-            showError('Username was taken by another user. Please choose another.');
-            checkUsernameAvailability(username); // Refresh status
-        } else {
-            showError(getErrorMessage(error.code));
+            try {
+                const snapshot = await database.ref('usernames/' + username).once('value');
+
+                if (snapshot.exists()) {
+                    statusDiv.textContent = '❌ Username already taken';
+                    statusDiv.className = 'username-status taken';
+                    usernameAvailable = false;
+                } else {
+                    statusDiv.textContent = '✅ Username available!';
+                    statusDiv.className = 'username-status available';
+                    usernameAvailable = true;
+                }
+            } catch (error) {
+                console.error('Error checking username:', error);
+                statusDiv.textContent = '⚠️ Error checking availability';
+                statusDiv.className = 'username-status';
+                usernameAvailable = false;
+            }
         }
-        
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
-    }
-}
+
+        // Handle signup
+        async function handleSignup() {
+            clearMessages();
+
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const username = document.getElementById('signupUsername').value.toLowerCase();
+            const btn = document.getElementById('signupBtn');
+
+            // Validation
+            if (!email || !password || !username) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            if (username.length < 3 || username.length > 20) {
+                showError('Username must be 3-20 characters');
+                return;
+            }
+
+            if (!/^[a-z0-9]+$/.test(username)) {
+                showError('Username can only contain lowercase letters and numbers');
+                return;
+            }
+
+            if (!usernameAvailable) {
+                showError('Please choose an available username');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const uid = userCredential.user.uid;
+
+                // Store username mapping and user data
+                await Promise.all([
+                    database.ref('usernames/' + username).set({
+                        uid: uid,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    }),
+                    database.ref('admins/' + uid).set({
+                        email: email,
+                        username: username,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    })
+                ]);
+
+                showSuccess('Account created successfully! Redirecting...');
+
+                setTimeout(() => {
+                    window.location.href = `admin-dashboard.html?page=${username}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                showError(getErrorMessage(error.code));
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        }
 
         // Handle signin
         async function handleSignin() {
@@ -1130,7 +1074,4 @@ async function handleSignup() {
     </script>
 </body>
 
-
 </html>
-
-
