@@ -345,30 +345,48 @@
             }
         }
 
-        .username-status {
-            font-size: 0.85em;
-            margin-top: 8px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 20px;
-            display: inline-block;
-        }
+       .username-status {
+    font-size: 0.9em;
+    margin-top: 8px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
 
         .username-status.available {
-            background: #d4edda;
-            color: #155724;
-        }
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #155724;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    animation: pulseSuccess 2s infinite;
+}
 
-        .username-status.taken {
-            background: #f8d7da;
-            color: #721c24;
-        }
+       .username-status.taken {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #721c24;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
 
-        .username-status.checking {
-            background: #fff3cd;
-            color: #856404;
-        }
+.username-status.checking {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    position: relative;
+}
 
+        .username-status.checking::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffc107;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    right: 12px;
+}                
         .btn {
             width: 100%;
             padding: 18px;
@@ -537,7 +555,7 @@
                 <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signupPassword" placeholder="minimum 8 characters" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">
+                    <button type="button" class="toggle-password" tabindex="-1" onclick="togglePassword('signupPassword')">
                         <div class="egg-icon">
                             <!-- Egg (Hidden Password) -->
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
@@ -559,10 +577,10 @@
                 <div id="usernameStatus" class="username-status"></div>
             </div>
 
-            <div class="link-preview" id="linkPreview">
+            <!-- <div class="link-preview" id="linkPreview">
                 Your public link will be: <br>
                 <strong id="previewLink">https://your-site.com/?page=username</strong>
-            </div>
+            </div> -->
 
             <button class="btn" onclick="handleSignup()" id="signupBtn">Create Account</button>
         </div>
@@ -578,7 +596,7 @@
                 <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signinPassword" placeholder="Your password" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('signinPassword')">
+                    <button type="button" class="toggle-password" tabindex="-1" onclick="togglePassword('signinPassword')">
                         <div class="egg-icon">
                             <!-- Egg (Hidden Password) -->
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
@@ -595,7 +613,7 @@
                 <a href="#" class="forgot-password-link" onclick="showForgotPassword()">Forgot Password?</a>
             </div>
 
-            <!-- <button class="btn" onclick="handleSignin()" id="signinBtn">Sign In</button> -->
+            <button class="btn" onclick="handleSignin()" id="signinBtn">Sign In</button>
         </div>
 
         <!-- Forgot Password Form -->
@@ -618,7 +636,7 @@
                 <label>New Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="newPassword" placeholder="New password" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('signinPassword')">
+                    <button type="button" class="toggle-password" tabindex="-1" onclick="togglePassword('signinPassword')">
                         <div class="egg-icon">
                             <!-- Egg (Hidden Password) -->
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#f0f0f0" stroke="#666"
@@ -657,21 +675,23 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDQOyPTvonheJ77Rck4Kx989sQGd1zEkV4",
+  authDomain: "hushly-nnc.firebaseapp.com",
+  databaseURL: "https://hushly-nnc-default-rtdb.firebaseio.com",
+  projectId: "hushly-nnc",
+  storageBucket: "hushly-nnc.firebasestorage.app",
+  messagingSenderId: "1001686893734",
+  appId: "1:1001686893734:web:d3037506921d2e757f2067",
+  measurementId: "G-4X0EX13KL6"
         };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
 
-        let usernameAvailable = false;
-        let checkTimeout;
+       let usernameAvailable = false;
+let isCheckingUsername = false;
+let checkTimeout;
 
         // Initialize EmailJS (Replace with YOUR keys)
         emailjs.init("MGbpiZ0e3wj0Y5dhs"); // From EmailJS dashboard
@@ -690,7 +710,7 @@
 
             try {
                 // Generate real 6-digit OTP
-                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();  // Generates a 6-digit number (e.g., 100000 to 999999)
                 otpSentEmail = email;
 
                 // Store OTP in Firebase
@@ -698,7 +718,7 @@
                 await database.ref('temp-otps/' + safeEmail).set({
                     otp: otp,
                     email: email,
-                    expires: Date.now() + 5 * 60 * 1000, // 5 minutes
+                    expires: Date.now() + 10 * 60 * 1000, // 10 minutes
                     sentAt: firebase.database.ServerValue.TIMESTAMP
                 });
 
@@ -779,278 +799,168 @@
             }
         }
 
+        let usernameAvailable = false;
+let isCheckingUsername = false;
+let checkTimeout;
 
-        let otpSentEmail = '';
-        let sentOTP = '';
+// FIXED: Username validation and availability check
+document.getElementById('signupUsername').addEventListener('input', async function(e) {
+    let username = e.target.value.toLowerCase().trim();
+    
+    // Auto-format username
+    username = username.replace(/[^a-z0-9]/g, '');
+    e.target.value = username;
 
-        // Show forgot password form
-        function showForgotPassword() {
-            switchTab('forgot-password');
-            document.querySelector('.tabs .tab:last-child').textContent = 'Reset Password';
+    // Update preview link
+    const baseUrl = window.location.origin;
+    document.getElementById('previewLink').textContent = 
+        `${baseUrl}/?page=${username || 'username'}`;
+
+    const statusDiv = document.getElementById('usernameStatus');
+    
+    // Clear previous states
+    statusDiv.textContent = '';
+    statusDiv.className = 'username-status';
+    usernameAvailable = false;
+    
+    // Minimum length check
+    if (username.length < 3) {
+        statusDiv.textContent = 'Minimum 3 characters required';
+        return;
+    }
+
+    if (isCheckingUsername) return; // Prevent multiple checks
+    
+    // Debounced check
+    clearTimeout(checkTimeout);
+    checkTimeout = setTimeout(async () => {
+        await checkUsernameAvailability(username);
+    }, 600);
+});
+
+// FIXED: Robust username availability check
+async function checkUsernameAvailability(username) {
+    if (!username || username.length < 3) return;
+    
+    const statusDiv = document.getElementById('usernameStatus');
+    isCheckingUsername = true;
+    
+    try {
+        statusDiv.textContent = '⏳ Checking availability...';
+        statusDiv.className = 'username-status checking';
+
+        // ✅ CRITICAL FIX: Use Firebase Realtime Database check
+        const snapshot = await database.ref('usernames').orderByChild(username).equalTo(true).once('value');
+        // OR use direct path check:
+        // const snapshot = await database.ref('usernames/' + username).once('value');
+        
+        if (snapshot.exists()) {
+            statusDiv.innerHTML = '❌ <strong>' + username + '</strong> is already taken';
+            statusDiv.className = 'username-status taken';
+            usernameAvailable = false;
+        } else {
+            statusDiv.innerHTML = '✅ <strong>' + username + '</strong> is available!';
+            statusDiv.className = 'username-status available';
+            usernameAvailable = true;
+        }
+    } catch (error) {
+        console.error('Username check error:', error);
+        statusDiv.innerHTML = '⚠️ Error checking availability';
+        statusDiv.className = 'username-status';
+        usernameAvailable = false;
+    } finally {
+        isCheckingUsername = false;
+    }
+}
+
+// FIXED: Signup with proper validation
+async function handleSignup() {
+    clearMessages();
+    
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const username = document.getElementById('signupUsername').value.toLowerCase().trim();
+    const btn = document.getElementById('signupBtn');
+
+    // ✅ VALIDATION CHECKS
+    if (!email || !password || !username) {
+        showError('Please fill in all fields');
+        return;
+    }
+
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+    }
+
+    if (username.length < 3 || username.length > 20) {
+        showError('Username must be 3-20 characters');
+        return;
+    }
+
+    if (!/^[a-z0-9]+$/.test(username)) {
+        showError('Username can only contain lowercase letters and numbers');
+        return;
+    }
+
+    // ✅ CRITICAL FIX: Double-check availability before signup
+    if (!usernameAvailable || isCheckingUsername) {
+        showError('⛔ Username not available or still checking. Please wait...');
+        // Force re-check
+        checkUsernameAvailability(username);
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Creating Account...';
+
+    try {
+        // ✅ ATOMIC OPERATION: Check + Create in transaction
+        const usernameRef = database.ref('usernames/' + username);
+        const snapshot = await usernameRef.once('value');
+        
+        if (snapshot.exists()) {
+            throw new Error('Username taken during signup');
         }
 
-        // Show signin form
-        function showSignin() {
-            switchTab('signin');
-            document.querySelector('.tabs .tab:last-child').textContent = 'Sign In';
-        }
+        // Create Firebase user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = userCredential.user.uid;
 
-        // Send OTP via Firebase
-        async function sendOTP() {
-            const email = document.getElementById('forgotEmail').value.trim();
-            const btn = document.querySelector('#forgotPasswordForm .btn-secondary');
-
-            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showError('Please enter a valid email address');
-                return;
+        // ✅ ATOMIC WRITE: Both records at once
+        await database.ref().update({
+            ['usernames/' + username]: {
+                uid: uid,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                email: email
+            },
+            ['admins/' + uid]: {
+                email: email,
+                username: username,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
             }
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Sending OTP...';
-
-            try {
-                // Generate 6-digit OTP
-                sentOTP = Math.floor(100000 + Math.random() * 900000).toString();
-                otpSentEmail = email;
-
-                // Store OTP temporarily in Firebase (in production, use Cloud Functions)
-                await database.ref('temp-otps/' + email.replace(/[@.]/g, '_')).set({
-                    otp: sentOTP,
-                    email: email,
-                    expires: Date.now() + 5 * 60 * 1000, // 5 minutes
-                    sentAt: firebase.database.ServerValue.TIMESTAMP
-                });
-
-                // Simulate email sending (replace with actual email service)
-                console.log(`OTP ${sentOTP} sent to ${email}`);
-                showSuccess('✅ OTP sent to your email! Check your inbox (or spam folder)');
-
-                // In production: Use EmailJS, SendGrid, or Firebase Cloud Functions
-                // sendEmail(email, `Your OTP is: ${sentOTP}`);
-
-                btn.innerHTML = 'Resend OTP (60s)';
-                startResendTimer(btn);
-
-            } catch (error) {
-                showError('Failed to send OTP. Please try again.');
-                console.error('OTP Error:', error);
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        // Verify OTP and reset password
-        async function verifyOTP() {
-            const email = document.getElementById('forgotEmail').value.trim();
-            const otp = document.getElementById('otpInput').value.trim();
-            const newPassword = document.getElementById('newPassword').value;
-            const btn = event.target;
-
-            if (!otp || otp.length !== 6 || !newPassword || newPassword.length < 6) {
-                showError('Please enter valid 6-digit OTP and password (min 6 chars)');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Resetting...';
-
-            try {
-                const safeEmail = email.replace(/[@.]/g, '_');
-                const snapshot = await database.ref('temp-otps/' + safeEmail).once('value');
-                const otpData = snapshot.val();
-
-                if (!otpData || otpData.expires < Date.now() || otpData.otp !== otp) {
-                    showError('Invalid or expired OTP');
-                    return;
-                }
-
-                // Reset Firebase password
-                await auth.sendPasswordResetEmail(email);
-
-                // Update user password
-                const user = await auth.signInWithEmailAndPassword(email, newPassword);
-
-                // Clean up OTP
-                await database.ref('temp-otps/' + safeEmail).remove();
-
-                showSuccess('✅ Password reset successful! Redirecting to dashboard...');
-
-                setTimeout(() => {
-                    const adminSnapshot = database.ref('admins/' + user.user.uid).once('value');
-                    const adminData = adminSnapshot.val();
-                    window.location.href = `admin-dashboard.html?page=${adminData.username}`;
-                }, 1500);
-
-            } catch (error) {
-                console.error('Reset Error:', error);
-                showError(getErrorMessage(error.code));
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Reset Password';
-            }
-        }
-
-        // Resend timer
-        function startResendTimer(btn) {
-            let timeLeft = 60;
-            const timer = setInterval(() => {
-                timeLeft--;
-                btn.innerHTML = `Resend OTP (${timeLeft}s)`;
-
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    btn.innerHTML = 'Resend OTP';
-                    btn.disabled = false;
-                } else {
-                    btn.disabled = true;
-                }
-            }, 1000);
-        }
-
-        // Update switchTab function to handle forgot-password
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach((t, index) => {
-                t.classList.toggle('active', index === (tab === 'signup' ? 0 : 1));
-            });
-
-            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-
-            if (tab === 'signup') {
-                document.getElementById('signupForm').classList.add('active');
-            } else if (tab === 'signin') {
-                document.getElementById('signinForm').classList.add('active');
-            } else if (tab === 'forgot-password') {
-                document.getElementById('forgotPasswordForm').classList.add('active');
-            }
-
-            clearMessages();
-            document.querySelector('h1').textContent =
-                tab === 'signup' ? 'Create Account' :
-                    tab === 'forgot-password' ? 'Reset Password' : 'Welcome Back';
-        }
-
-
-        // Username validation and availability check
-        document.getElementById('signupUsername').addEventListener('input', function (e) {
-            let username = e.target.value.toLowerCase();
-
-            // Auto-format: remove spaces and special chars
-            username = username.replace(/[^a-z0-9]/g, '');
-            e.target.value = username;
-
-            // Update preview link
-            const baseUrl = window.location.origin;
-            document.getElementById('previewLink').textContent =
-                `${baseUrl}/?page=${username || 'username'}`;
-
-            // Clear previous timeout
-            clearTimeout(checkTimeout);
-
-            const statusDiv = document.getElementById('usernameStatus');
-
-            if (username.length < 3) {
-                statusDiv.textContent = '';
-                usernameAvailable = false;
-                return;
-            }
-
-            statusDiv.textContent = '⏳ Checking availability...';
-            statusDiv.className = 'username-status checking';
-
-            // Debounce username check
-            checkTimeout = setTimeout(() => {
-                checkUsernameAvailability(username);
-            }, 500);
         });
 
-        // Check if username is available
-        async function checkUsernameAvailability(username) {
-            const statusDiv = document.getElementById('usernameStatus');
+        showSuccess(`✅ Account "${username}" created successfully!`);
+        
+        setTimeout(() => {
+            window.location.href = `admin-dashboard.html?page=${username}`;
+        }, 1500);
 
-            try {
-                const snapshot = await database.ref('usernames/' + username).once('value');
-
-                if (snapshot.exists()) {
-                    statusDiv.textContent = '❌ Username already taken';
-                    statusDiv.className = 'username-status taken';
-                    usernameAvailable = false;
-                } else {
-                    statusDiv.textContent = '✅ Username available!';
-                    statusDiv.className = 'username-status available';
-                    usernameAvailable = true;
-                }
-            } catch (error) {
-                console.error('Error checking username:', error);
-                statusDiv.textContent = '⚠️ Error checking availability';
-                statusDiv.className = 'username-status';
-                usernameAvailable = false;
-            }
+    } catch (error) {
+        console.error('Signup error:', error);
+        
+        if (error.message.includes('Username taken')) {
+            showError('Username was taken by another user. Please choose another.');
+            checkUsernameAvailability(username); // Refresh status
+        } else {
+            showError(getErrorMessage(error.code));
         }
-
-        // Handle signup
-        async function handleSignup() {
-            clearMessages();
-
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const username = document.getElementById('signupUsername').value.toLowerCase();
-            const btn = document.getElementById('signupBtn');
-
-            // Validation
-            if (!email || !password || !username) {
-                showError('Please fill in all fields');
-                return;
-            }
-
-            if (username.length < 3 || username.length > 20) {
-                showError('Username must be 3-20 characters');
-                return;
-            }
-
-            if (!/^[a-z0-9]+$/.test(username)) {
-                showError('Username can only contain lowercase letters and numbers');
-                return;
-            }
-
-            if (!usernameAvailable) {
-                showError('Please choose an available username');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Creating Account...';
-
-            try {
-                // Create user account
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const uid = userCredential.user.uid;
-
-                // Store username mapping and user data
-                await Promise.all([
-                    database.ref('usernames/' + username).set({
-                        uid: uid,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    }),
-                    database.ref('admins/' + uid).set({
-                        email: email,
-                        username: username,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    })
-                ]);
-
-                showSuccess('Account created successfully! Redirecting...');
-
-                setTimeout(() => {
-                    window.location.href = `admin-dashboard.html?page=${username}`;
-                }, 1500);
-
-            } catch (error) {
-                console.error('Signup error:', error);
-                showError(getErrorMessage(error.code));
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
-            }
-        }
+        
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+    }
+}
 
         // Handle signin
         async function handleSignin() {
@@ -1222,4 +1132,5 @@
 
 
 </html>
+
 
